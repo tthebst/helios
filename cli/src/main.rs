@@ -102,6 +102,7 @@ impl Cli {
             consensus_rpc: self.consensus_rpc.clone(),
             data_dir: self.get_data_dir(),
             rpc_port: self.rpc_port,
+            p2p: self.p2p,
         }
     }
 

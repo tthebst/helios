@@ -108,6 +108,7 @@ pub struct CliConfig {
     pub checkpoint: Option<Vec<u8>>,
     pub rpc_port: Option<u16>,
     pub data_dir: PathBuf,
+    pub p2p: bool,
 }
 
 impl CliConfig {
@@ -128,6 +129,10 @@ impl CliConfig {
 
         if let Some(port) = self.rpc_port {
             user_dict.insert("rpc_port", Value::from(port));
+        }
+
+        if self.p2p {
+            user_dict.insert("p2p", Value::from(self.p2p));
         }
 
         user_dict.insert("data_dir", Value::from(self.data_dir.to_str().unwrap()));
