@@ -14,9 +14,8 @@ pub struct NimbusRpc {
     client: ClientWithMiddleware,
 }
 
-#[async_trait]
-impl ConsensusRpc for NimbusRpc {
-    fn new(rpc: &str) -> Self {
+impl NimbusRpc {
+    pub fn new(rpc: &str) -> Self {
         let retry_policy = ExponentialBackoff::builder()
             .backoff_exponent(1)
             .build_with_max_retries(3);
@@ -30,7 +29,10 @@ impl ConsensusRpc for NimbusRpc {
             client,
         }
     }
+}
 
+#[async_trait]
+impl ConsensusRpc for NimbusRpc {
     async fn get_bootstrap(&self, block_root: &Vec<u8>) -> Result<Bootstrap> {
         let root_hex = hex::encode(block_root);
         let req = format!(

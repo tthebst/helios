@@ -55,6 +55,7 @@ pub struct ClientBuilder {
     checkpoint: Option<Vec<u8>>,
     rpc_port: Option<u16>,
     data_dir: Option<PathBuf>,
+    p2p: bool,
     config: Option<Config>,
 }
 
@@ -67,6 +68,7 @@ impl ClientBuilder {
             checkpoint: None,
             rpc_port: None,
             data_dir: None,
+            p2p: false,
             config: None,
         }
     }
@@ -99,6 +101,11 @@ impl ClientBuilder {
 
     pub fn data_dir(mut self, data_dir: PathBuf) -> Self {
         self.data_dir = Some(data_dir);
+        self
+    }
+
+    pub fn p2p(mut self) -> Self {
+        self.p2p = true;
         self
     }
 
@@ -158,6 +165,14 @@ impl ClientBuilder {
             None
         };
 
+        let p2p = if self.p2p {
+            true
+        } else if let Some(config) = &self.config {
+            config.p2p
+        } else {
+            base_config.p2p
+        };
+
         let config = Config {
             consensus_rpc,
             execution_rpc,
@@ -167,6 +182,7 @@ impl ClientBuilder {
             chain: base_config.chain,
             forks: base_config.forks,
             max_checkpoint_age: base_config.max_checkpoint_age,
+            p2p,
         };
 
         Client::new(config)

@@ -85,6 +85,8 @@ struct Cli {
     consensus_rpc: Option<String>,
     #[clap(short, long, env)]
     data_dir: Option<String>,
+    #[clap(long)]
+    p2p: bool,
 }
 
 impl Cli {

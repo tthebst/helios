@@ -27,6 +27,7 @@ pub struct Config {
     pub chain: ChainConfig,
     pub forks: Forks,
     pub max_checkpoint_age: u64,
+    pub p2p: bool,
 }
 
 impl Config {
@@ -95,6 +96,7 @@ impl Config {
             chain: self.chain.clone(),
             forks: self.forks.clone(),
             max_checkpoint_age: self.max_checkpoint_age.clone(),
+            p2p: self.p2p,
         }
     }
 }

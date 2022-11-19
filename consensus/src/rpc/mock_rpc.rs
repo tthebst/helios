@@ -10,14 +10,16 @@ pub struct MockRpc {
     testdata: PathBuf,
 }
 
-#[async_trait]
-impl ConsensusRpc for MockRpc {
+impl MockRpc {
     fn new(path: &str) -> Self {
         MockRpc {
             testdata: PathBuf::from(path),
         }
     }
+}
 
+#[async_trait]
+impl ConsensusRpc for MockRpc {
     async fn get_bootstrap(&self, _block_root: &Vec<u8>) -> Result<Bootstrap> {
         let bootstrap = read_to_string(self.testdata.join("bootstrap.json"))?;
         Ok(serde_json::from_str(&bootstrap)?)

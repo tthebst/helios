@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::time::Duration;
 
+use consensus::rpc::p2p_rpc::P2PRpc;
 use ethers::prelude::{Address, U256};
 use ethers::types::{Filter, Log, Transaction, TransactionReceipt, H256};
 use eyre::{eyre, Result};
@@ -10,6 +11,7 @@ use common::errors::BlockNotFoundError;
 use common::types::BlockTag;
 use config::Config;
 use consensus::rpc::nimbus_rpc::NimbusRpc;
+use consensus::rpc::ConsensusRpc;
 use consensus::types::{ExecutionPayload, Header};
 use consensus::ConsensusClient;
 use execution::evm::Evm;
@@ -20,7 +22,7 @@ use execution::ExecutionClient;
 use crate::errors::NodeError;
 
 pub struct Node {
-    consensus: ConsensusClient<NimbusRpc>,
+    consensus: ConsensusClient,
     execution: Arc<ExecutionClient<HttpRpc>>,
     config: Arc<Config>,
     payloads: BTreeMap<u64, ExecutionPayload>,
@@ -34,7 +36,12 @@ impl Node {
         let checkpoint_hash = &config.checkpoint;
         let execution_rpc = &config.execution_rpc;
 
-        let consensus = ConsensusClient::new(consensus_rpc, checkpoint_hash, config.clone())
+        let rpc: Arc<dyn ConsensusRpc + Send + Sync> = if config.p2p {
+            Arc::new(P2PRpc::new())
+        } else {
+            Arc::new(NimbusRpc::new(consensus_rpc))
+        };
+        let consensus = ConsensusClient::new(rpc, checkpoint_hash, config.clone())
             .map_err(NodeError::ConsensusClientCreationError)?;
         let execution = Arc::new(
             ExecutionClient::new(execution_rpc).map_err(NodeError::ExecutionClientCreationError)?,

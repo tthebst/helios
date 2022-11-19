@@ -29,6 +29,7 @@ pub struct BaseConfig {
     pub chain: ChainConfig,
     pub forks: Forks,
     pub max_checkpoint_age: u64,
+    pub p2p: bool,
 }
 
 pub fn mainnet() -> BaseConfig {
@@ -62,6 +63,7 @@ pub fn mainnet() -> BaseConfig {
             },
         },
         max_checkpoint_age: 1_209_600, // 14 days
+        p2p: false,
     }
 }
 
@@ -96,5 +98,6 @@ pub fn goerli() -> BaseConfig {
             },
         },
         max_checkpoint_age: 1_209_600, // 14 days
+        p2p: false,
     }
 }

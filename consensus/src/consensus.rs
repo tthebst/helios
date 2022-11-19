@@ -23,8 +23,8 @@ use super::utils::*;
 // https://github.com/ethereum/consensus-specs/blob/dev/specs/altair/light-client/sync-protocol.md
 // does not implement force updates
 
-pub struct ConsensusClient<R: ConsensusRpc> {
-    rpc: R,
+pub struct ConsensusClient {
+    rpc: Arc<dyn ConsensusRpc + Send + Sync>,
     store: LightClientStore,
     initial_checkpoint: Vec<u8>,
     pub last_checkpoint: Option<Vec<u8>>,
@@ -41,14 +41,12 @@ struct LightClientStore {
     current_max_active_participants: u64,
 }
 
-impl<R: ConsensusRpc> ConsensusClient<R> {
+impl ConsensusClient {
     pub fn new(
-        rpc: &str,
+        rpc: Arc<dyn ConsensusRpc + Send + Sync>,
         checkpoint_block_root: &Vec<u8>,
         config: Arc<Config>,
-    ) -> Result<ConsensusClient<R>> {
-        let rpc = R::new(rpc);
-
+    ) -> Result<ConsensusClient> {
         Ok(ConsensusClient {
             rpc,
             store: LightClientStore::default(),
