@@ -11,6 +11,7 @@ use config::Config;
 use consensus::types::Header;
 use execution::types::{CallOpts, ExecutionBlock};
 use log::{info, warn};
+use tokio::runtime::Handle;
 use tokio::spawn;
 use tokio::sync::RwLock;
 use tokio::time::sleep;
@@ -26,9 +27,9 @@ pub struct Client<DB: Database> {
 }
 
 impl Client<FileDB> {
-    fn new(config: Config) -> Result<Self> {
+    fn new(config: Config, rt: Handle) -> Result<Self> {
         let config = Arc::new(config);
-        let node = Node::new(config.clone())?;
+        let node = Node::new(config.clone(), rt)?;
         let node = Arc::new(RwLock::new(node));
 
         let rpc = if let Some(port) = config.rpc_port {
@@ -114,7 +115,7 @@ impl ClientBuilder {
         self
     }
 
-    pub fn build(self) -> Result<Client<FileDB>> {
+    pub fn build(self, rt: Handle) -> Result<Client<FileDB>> {
         let base_config = if let Some(network) = self.network {
             network.to_base_config()
         } else {
@@ -185,7 +186,7 @@ impl ClientBuilder {
             p2p,
         };
 
-        Client::new(config)
+        Client::new(config, rt)
     }
 }
 

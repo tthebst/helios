@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::time::Duration;
 
+use config::networks::Network;
 use consensus::rpc::p2p_rpc::P2PRpc;
 use ethers::prelude::{Address, U256};
 use ethers::types::{Filter, Log, Transaction, TransactionReceipt, H256};
@@ -18,6 +19,7 @@ use execution::evm::Evm;
 use execution::rpc::http_rpc::HttpRpc;
 use execution::types::{CallOpts, ExecutionBlock};
 use execution::ExecutionClient;
+use tokio::runtime::Handle;
 
 use crate::errors::NodeError;
 
@@ -31,13 +33,14 @@ pub struct Node {
 }
 
 impl Node {
-    pub fn new(config: Arc<Config>) -> Result<Self, NodeError> {
+    pub fn new(config: Arc<Config>, rt: Handle) -> Result<Self, NodeError> {
         let consensus_rpc = &config.consensus_rpc;
         let checkpoint_hash = &config.checkpoint;
         let execution_rpc = &config.execution_rpc;
 
         let rpc: Arc<dyn ConsensusRpc + Send + Sync> = if config.p2p {
-            Arc::new(P2PRpc::new())
+            // TODO: Pass network
+            Arc::new(P2PRpc::new(Network::GOERLI, rt))
         } else {
             Arc::new(NimbusRpc::new(consensus_rpc))
         };

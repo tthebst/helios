@@ -16,18 +16,23 @@ use client::{database::FileDB, Client, ClientBuilder};
 use config::{CliConfig, Config};
 use futures::executor::block_on;
 use log::info;
+use tokio::runtime::Runtime;
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
+    let rt = Runtime::new().unwrap();
 
     let config = get_config();
-    let mut client = ClientBuilder::new().config(config).build()?;
+    let mut client = ClientBuilder::new()
+        .config(config)
+        .build(rt.handle().clone())?;
 
-    client.start().await?;
+    rt.block_on(async {
+        client.start().await?;
 
-    register_shutdown_handler(client);
-    std::future::pending().await
+        register_shutdown_handler(client);
+        std::future::pending().await
+    })
 }
 
 fn register_shutdown_handler(client: Client<FileDB>) {

@@ -16,6 +16,7 @@ blst = "0.3.10"
 ethers = "1.0.0"
 bytes = "1.2.1"
 toml = "0.5.9"
+discv5 = { version = "0.1.0", features = ["libp2p"] }
 async-trait = "0.1.57"
 log = "0.4.17"
 chrono = "0.4.22"
@@ -27,3 +28,9 @@ reqwest-retry = "0.1.5"
 
 common = { path = "../common" }
 config = { path = "../config" }
+
+[dependencies.libp2p]
+version = "0.48.0"
+default-features = false
+features = ["websocket", "identify", "mplex", "yamux", "noise", "gossipsub", "dns-tokio", "tcp-tokio", "plaintext", "secp256k1"]
+
